@@ -510,4 +510,192 @@ sudo usermod -aG docker $USER
 
 ---
 
-最終更新: 2025-06-22
+---
+id: k019
+title: Nested directory structure and Tailwind PostCSS fix
+date: 2025-06-23
+tags: [directory-structure, tailwindcss, postcss, vibe-template]
+versions:
+  tailwindcss: "^4.1.10"
+  vite: ">=5.0.0"
+severity: high
+---
+
+### 問題
+1. **ネストしたディレクトリ構造**
+   - vibe-coding-templateで生成された `~/ai-writing-assistant/ai-writing-assistant/` の二重ネスト
+2. **Tailwind CSS PostCSS エラー**
+   - `@tailwindcss/postcss` パッケージが不足
+3. **ES module形式エラー**
+   - `module is not defined in ES module scope`
+
+### 発生状況
+- vibe-coding-template使用後のプロジェクト構造確認時
+- 開発サーバー起動時
+
+### 原因
+1. vibe-coding-templateの新規プロジェクト作成時の動作
+2. Tailwind CSS v4での新しいPostCSS設定要件
+3. package.jsonで`"type": "module"`が設定されている環境での設定ファイル形式
+
+### 解決策
+```bash
+# 1. ディレクトリ構造修正
+rm -rf src && cp -r ai-writing-assistant/src . && rm -rf ai-writing-assistant
+
+# 2. Tailwind PostCSS依存関係追加
+npm install @tailwindcss/postcss
+
+# 3. postcss.config.js をES module形式に修正
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
+}
+```
+
+### 検証結果
+✅ ディレクトリ構造: 修正完了  
+✅ 依存関係: インストール完了  
+✅ 開発サーバー: 正常起動 (http://localhost:5173/)  
+✅ Phase 1機能: 全コンポーネント動作確認済み
+
+### 関連知識
+- k004: WSL network configuration
+- k016: PostCSS configuration patterns
+
+### 予防策
+- vibe-coding-template使用後はディレクトリ構造を確認
+- Tailwind CSS v4の新しい設定要件を事前確認
+- ES moduleプロジェクトでは設定ファイルもES形式で記述
+
+---
+id: k019
+title: Nested directory structure in vibe-coding-template
+date: 2025-06-23
+tags: [directory-structure, vibe-template, project-setup]
+versions:
+  vibe-coding-template: "v2.0"
+severity: medium
+---
+
+## k019: ネストしたディレクトリ構造エラー
+
+### 問題
+- **エラー**: ディレクトリが `~/ai-writing-assistant/ai-writing-assistant/` のように二重ネストされる
+- **発生箇所**: `vibe-coding-template/scripts/new-project.sh` 実行後
+- **症状**: プロジェクトファイルが正しいパスに配置されない
+
+### 原因
+vibe-coding-templateが新規プロジェクト作成時に、指定したプロジェクト名のディレクトリ内にさらに同名ディレクトリを作成している
+
+### 解決策
+```bash
+# 修正前の構造
+~/ai-writing-assistant/ai-writing-assistant/src/
+~/ai-writing-assistant/ai-writing-assistant/package.json
+
+# 修正コマンド
+rm -rf src && cp -r ai-writing-assistant/src . && rm -rf ai-writing-assistant
+
+# 修正後の構造
+~/ai-writing-assistant/src/
+~/ai-writing-assistant/package.json
+```
+
+### 教訓
+- vibe-coding-template使用後は必ずディレクトリ構造を確認する
+- テンプレート側のバグの可能性があるため、手動修正が必要
+
+### 関連
+- テンプレート作成プロセスの改善が必要
+
+---
+id: k020
+title: Tailwind CSS PostCSS dependency missing
+date: 2025-06-23
+tags: [tailwindcss, postcss, dependency-error]
+versions:
+  tailwindcss: "^4.1.10"
+  postcss: "^8.5.6"
+severity: high
+---
+
+## k020: Tailwind CSS PostCSS依存関係エラー
+
+### 問題
+- **エラー**: `@tailwindcss/postcss` が見つからない
+- **発生箇所**: `npm run dev` 実行時
+- **症状**: 開発サーバーが起動しない
+
+### 原因
+Tailwind CSS v4で新しくPostCSS統合方式が変更されたが、必要な依存関係がインストールされていない
+
+### 解決策
+```bash
+# 修正前: パッケージが不足
+# package.json に @tailwindcss/postcss がない
+
+# 修正後: 必要な依存関係を追加
+npm install @tailwindcss/postcss
+```
+
+### 教訓
+- Tailwind CSS v4では新しいPostCSS統合が必要
+- メジャーバージョンアップ時は依存関係の変更を確認する
+
+### 関連
+- k021: PostCSS設定ファイルの形式エラー
+
+---
+id: k021
+title: ES module PostCSS config syntax error
+date: 2025-06-23
+tags: [postcss, es-modules, configuration]
+versions:
+  node: ">=16.0.0"
+  postcss: "^8.5.6"
+severity: medium
+---
+
+## k021: ES module環境でのPostCSS設定エラー
+
+### 問題
+- **エラー**: `module is not defined in ES module scope`
+- **発生箇所**: `postcss.config.js:1:1`
+- **症状**: PostCSS設定ファイルが読み込めない
+
+### 原因
+package.jsonで`"type": "module"`が設定されているプロジェクトで、CommonJS形式の設定ファイルを使用している
+
+### 解決策
+```javascript
+// 修正前 (CommonJS形式)
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
+}
+
+// 修正後 (ES module形式)
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
+}
+```
+
+### 教訓
+- ES moduleプロジェクトでは設定ファイルもES形式で記述する
+- package.jsonの`"type": "module"`設定を常に確認する
+
+### 関連
+- k020: Tailwind PostCSS依存関係
+- ES module環境での設定ファイル記述パターン
+
+---
+
+最終更新: 2025-06-23
