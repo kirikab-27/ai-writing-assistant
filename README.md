@@ -1,51 +1,91 @@
-# 🚀 AI Writing Assistant
+# 🤖 AI Writing Assistant
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Phase](https://img.shields.io/badge/phase-1_complete-brightgreen)
+![Phase](https://img.shields.io/badge/phase-2_complete-brightgreen)
 
-**AI駆動のマークダウンライティングアシスタント**
+**AI駆動のマークダウンライティングアシスタント - 完全版**
 
-CodeMirrorとリアルタイムプレビューを組み合わせた、現代的なマークダウンエディタです。将来的にAI機能を統合して、文章作成を支援します。
+複数のAIプロバイダーに対応した高機能なマークダウンエディタです。リアルタイムプレビュー、AI支援機能、そして直感的な3ペインレイアウトで、効率的な文章作成をサポートします。
 
-## 🎯 実装済み機能（Phase 1）
+## 🎯 実装済み機能（Phase 2 完了）
 
-- **📝 高機能エディタ**: CodeMirror 6によるマークダウン編集
-- **👁️ リアルタイムプレビュー**: 分割ペインでの即座な表示
-- **💾 自動保存**: IndexedDBによる30秒間隔の自動保存
-- **📋 ドキュメント管理**: 作成・削除・選択機能
-- **🌙 ダークモード**: 切り替え可能なテーマ
-- **🎨 レスポンシブUI**: Tailwind CSSによるモダンなデザイン
-- **🔧 基本ツールバー**: 太字、斜体、見出し等の挿入機能
+### 📝 エディタ機能
+- **高機能エディタ**: CodeMirror 6によるマークダウン編集
+- **リアルタイムプレビュー**: 分割ペインでの即座な表示
+- **自動保存**: IndexedDBによる30秒間隔の自動保存
+- **ドキュメント管理**: 作成・削除・選択機能
+- **基本ツールバー**: 太字、斜体、見出し等の挿入機能
+
+### 🤖 AI機能（NEW!）
+- **AI テキスト改善**: 文章の校正・改善提案
+- **AI 継続執筆**: 文章の自動続き生成
+- **AI 要約機能**: 長文の自動要約
+- **マルチプロバイダー対応**: Google Gemini, Cohere, HuggingFace
+- **セキュアなAPI key管理**: 暗号化されたローカルストレージ
+- **接続テスト機能**: リアルタイムでのAI接続確認
+
+### 🎨 UI/UX
+- **3ペインレイアウト**: AI機能・ドキュメント管理・エディタの最適配置
+- **ダークモード**: 切り替え可能なテーマ
+- **レスポンシブデザイン**: Tailwind CSSによるモダンなUI
+- **プロフェッショナルなモーダル**: React Portal使用の高品質なダイアログ
 
 ## 📁 プロジェクト構造
 
 ```
 src/
 ├── components/
-│   ├── Editor.tsx          # CodeMirrorエディタ
-│   ├── Preview.tsx         # マークダウンプレビュー
-│   ├── Toolbar.tsx         # フォーマットツールバー
-│   └── DocumentList.tsx    # ドキュメント一覧
+│   ├── Editor.tsx              # CodeMirrorエディタ
+│   ├── Preview.tsx             # マークダウンプレビュー
+│   ├── Toolbar.tsx             # フォーマットツールバー
+│   ├── DocumentList.tsx        # ドキュメント一覧
+│   ├── AISettingsModal.tsx     # AI設定モーダル
+│   ├── AISidebar.tsx           # AIサイドバー
+│   ├── AISuggestionsPanel.tsx  # AI提案パネル
+│   └── LoadingSpinner.tsx      # ローディング表示
+├── services/ai/
+│   ├── AIService.ts            # AI抽象ベースクラス
+│   ├── AIServiceFactory.ts     # AIサービスファクトリ
+│   ├── GeminiService.ts        # Google Gemini実装
+│   ├── CohereService.ts        # Cohere実装
+│   └── HuggingFaceService.ts   # HuggingFace実装
 ├── types/
-│   └── Document.ts         # TypeScript型定義
+│   ├── Document.ts             # ドキュメント型定義
+│   └── AI.ts                   # AI関連型定義
 ├── utils/
-│   └── database.ts         # IndexedDBデータ管理
-├── App.tsx                 # メインアプリケーション
-└── main.tsx               # エントリーポイント
+│   ├── database.ts             # IndexedDBデータ管理
+│   └── aiSettings.ts           # AI設定管理
+├── App.tsx                     # メインアプリケーション
+└── main.tsx                   # エントリーポイント
 ```
 
 ## 🛠️ 技術スタック
 
-- **フロントエンド**: React 18 + TypeScript
-- **ビルドツール**: Vite 5
-- **エディタ**: CodeMirror 6
-- **マークダウン**: markdown-it
-- **スタイリング**: Tailwind CSS v4 + Typography plugin
-- **データ保存**: IndexedDB (idb)
-- **テーマ**: One Dark theme support
+### フロントエンド
+- **React 18** + **TypeScript** - モダンなコンポーネント開発
+- **Vite 5** - 高速ビルドツール
+- **Tailwind CSS v4** - ユーティリティファーストCSS
+
+### エディタ・プレビュー
+- **CodeMirror 6** - 高機能エディタライブラリ
+- **markdown-it** - 高速マークダウンパーサー
+
+### AI統合
+- **Google Generative AI** (@google/generative-ai) - Gemini API
+- **Cohere AI** (cohere-ai) - Cohere API
+- **HuggingFace** - Transformers API
+- **crypto-js** - API key暗号化
+
+### データ管理
+- **IndexedDB** (idb) - ローカルデータストレージ
+- **React Portal** - モーダル表示
 
 ## 🚀 セットアップ
+
+### 前提条件
+- Node.js 18以上
+- npm または yarn
 
 ### 1. リポジトリのクローン
 ```bash
@@ -69,44 +109,26 @@ npm run dev
 
 ### 基本操作
 1. **新規ドキュメント作成**: サイドバーの「+ New Document」ボタン
-2. **ドキュメント編集**: 左ペインでマークダウンを記述
+2. **ドキュメント編集**: 中央ペインでマークダウンを記述
 3. **リアルタイムプレビュー**: 右ペインで結果を確認
-4. **自動保存**: 30秒間隔で自動的に保存
-5. **ダークモード**: ヘッダーの🌙ボタンで切り替え
+4. **AI機能**: 左サイドバーからAI機能にアクセス
 
-### ツールバー機能
-- **太字**: `**text**`
-- **斜体**: `*text*`
-- **見出し**: `# ## ###`
-- **リンク**: `[text](url)`
-- **リスト**: `- item` または `1. item`
-- **コードブロック**: ` ```code``` `
-- **引用**: `> quote`
+### AI機能の設定
+1. **AI設定画面を開く**: 左サイドバーの「🚀 Configure AI」ボタン
+2. **プロバイダー選択**: Google Gemini, Cohere, HuggingFaceから選択
+3. **API Key入力**: 選択したプロバイダーのAPI keyを入力
+4. **接続テスト**: 「🔍 Test Connection」で動作確認
+5. **設定保存**: 「💾 Save Settings」で設定を保存
 
-### キーボードショートカット
-- **Ctrl+B**: 太字
-- **Ctrl+I**: 斜体
-- **Ctrl+S**: 手動保存
+### AI機能の利用
+- **✨ Improve Text**: 選択したテキストまたは全文の改善
+- **➡️ Continue Writing**: 現在の文章の続きを生成
+- **📝 Summarize**: 長いテキストの要約生成
 
-## 🔮 今後の計画（Phase 2〜4）
-
-### Phase 2: AI機能統合 🤖
-- **文章生成**: AIによる文章作成支援
-- **要約機能**: 長文の自動要約
-- **校正支援**: 文法・スタイルの改善提案
-- **翻訳機能**: 多言語対応
-
-### Phase 3: 高度なドキュメント管理 📚
-- **フォルダ機能**: ドキュメントの階層管理
-- **タグ機能**: カテゴリ別整理
-- **検索機能**: 全文検索
-- **バージョン管理**: 変更履歴の追跡
-
-### Phase 4: エクスポート・共有 🌍
-- **多形式エクスポート**: PDF、HTML、Word
-- **クラウド同期**: リアルタイム同期
-- **共同編集**: マルチユーザー対応
-- **パブリッシング**: Web公開機能
+### APIキーの取得方法
+- **Google Gemini**: [Google AI Studio](https://makersuite.google.com)
+- **Cohere**: [Cohere Dashboard](https://dashboard.cohere.ai)
+- **HuggingFace**: [HuggingFace Settings](https://huggingface.co/settings/tokens)
 
 ## 🔧 開発コマンド
 
@@ -126,32 +148,57 @@ npm run preview
 
 ## 🏗️ 開発ガイド
 
+### AI機能の拡張
+1. `src/services/ai/`に新しいサービスクラスを追加
+2. `AIService`抽象クラスを継承
+3. `AIServiceFactory`にプロバイダーを登録
+4. `AI.ts`型定義を更新
+
 ### 新機能の追加
 1. 適切なコンポーネントディレクトリに配置
 2. TypeScript型定義を更新
-3. テストの追加（推奨）
-4. ドキュメントの更新
+3. `.ai/knowledge/`に実装記録を追加
 
 ### コンポーネント設計原則
 - **単一責任**: 1つのコンポーネントは1つの責任
 - **型安全性**: TypeScriptによる厳密な型定義
 - **再利用性**: propsによる柔軟な設計
-- **パフォーマンス**: 必要に応じてmemo化
+- **AI統合**: サービスレイヤーを通じた疎結合
 
 ## 🐛 トラブルシューティング
 
 ### よくある問題
 
-**Q: 開発サーバーが起動しない**
-A: `node_modules`を削除して`npm install`を再実行
+**Q: AI機能が動作しない**
+A: API keyが正しく設定されているか確認し、接続テストを実行してください
 
-**Q: ダークモードが正しく表示されない**
-A: ブラウザのlocalStorageをクリアしてページを再読み込み
+**Q: モーダルが正しく表示されない**
+A: ブラウザキャッシュをクリアしてページを再読み込みしてください
 
-**Q: 自動保存が機能しない**
-A: ブラウザがIndexedDBをサポートしているか確認
+**Q: TypeScriptエラーが発生する**
+A: `npm run build`でエラー詳細を確認し、型定義を確認してください
 
 詳細なエラー対応は `.ai/knowledge/current-local/troubleshooting.md` を参照してください。
+
+## 🔐 セキュリティ
+
+- **API Key暗号化**: crypto-jsによる暗号化ストレージ
+- **ローカル保存**: APIキーはローカルのみに保存、外部送信なし
+- **セキュアなHTTPS通信**: すべてのAI APIとの通信は暗号化
+
+## 🔮 今後の計画（Phase 3〜4）
+
+### Phase 3: 高度なドキュメント管理 📚
+- **フォルダ機能**: ドキュメントの階層管理
+- **タグ機能**: カテゴリ別整理
+- **検索機能**: 全文検索
+- **バージョン管理**: 変更履歴の追跡
+
+### Phase 4: エクスポート・共有 🌍
+- **多形式エクスポート**: PDF、HTML、Word
+- **クラウド同期**: リアルタイム同期
+- **共同編集**: マルチユーザー対応
+- **パブリッシング**: Web公開機能
 
 ## 🤝 貢献
 
@@ -171,9 +218,12 @@ MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してくださ�
 - [markdown-it](https://github.com/markdown-it/markdown-it) - マークダウンパーサー
 - [Tailwind CSS](https://tailwindcss.com/) - ユーティリティファーストCSS
 - [Vite](https://vitejs.dev/) - 高速ビルドツール
+- [Google Generative AI](https://ai.google.dev/) - Gemini API
+- [Cohere](https://cohere.ai/) - Cohere API
+- [HuggingFace](https://huggingface.co/) - AI Models & API
 
 ---
 
-**🎉 Happy Writing with AI! ✍️**
+**🤖 AI-Powered Writing Experience! ✍️**
 
 このプロジェクトは [VIBE Coding Template](https://github.com/kirikab-27/vibe-coding-template) を使用して開発されました。
