@@ -15,7 +15,6 @@ interface PreviewProps {
 
 export function Preview({ content, isDarkMode }: PreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
-  const scrollPositionRef = useRef(0);
 
   useEffect(() => {
     if (previewRef.current) {

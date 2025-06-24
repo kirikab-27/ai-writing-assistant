@@ -36,9 +36,17 @@ export function Editor({ content, onChange, isDarkMode }: EditorProps) {
           '.cm-content': {
             padding: '1rem',
             fontFamily: 'monospace',
+            minHeight: '100%',
           },
           '.cm-scroller': {
             fontFamily: 'monospace',
+            height: '100%',
+          },
+          '.cm-editor': {
+            height: '100%',
+          },
+          '.cm-focused': {
+            outline: 'none',
           },
         }),
       ],
@@ -68,5 +76,5 @@ export function Editor({ content, onChange, isDarkMode }: EditorProps) {
     }
   }, [content]);
 
-  return <div ref={editorRef} className="h-full overflow-auto" />;
+  return <div ref={editorRef} className="h-full overflow-auto editor-container" />;
 }

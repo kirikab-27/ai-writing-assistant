@@ -3,6 +3,8 @@ import { Editor } from './components/Editor';
 import { Preview } from './components/Preview';
 import { Toolbar } from './components/Toolbar';
 import { DocumentList } from './components/DocumentList';
+import { AISettingsModal } from './components/AISettingsModal';
+import { AISidebar } from './components/AISidebar';
 import {
   getAllDocuments,
   getDocument,
@@ -10,7 +12,10 @@ import {
   deleteDocument,
   createNewDocument,
 } from './utils/database';
+import { loadAISettings } from './utils/aiSettings';
+import { AIServiceFactory } from './services/ai/AIServiceFactory';
 import type { Document } from './types/Document';
+import type { AISettings } from './types/AI';
 
 function App() {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -19,11 +24,16 @@ function App() {
     return localStorage.getItem('darkMode') === 'true';
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
+  const [isAISidebarCollapsed, setIsAISidebarCollapsed] = useState(false);
+  const [aiSettings, setAISettings] = useState<AISettings | null>(null);
+  const [isAILoading, setIsAILoading] = useState(false);
+  const autoSaveTimerRef = useRef<number | null>(null);
 
-  // Load documents on mount
+  // Load documents and AI settings on mount
   useEffect(() => {
     loadDocuments();
+    setAISettings(loadAISettings());
   }, []);
 
   // Apply dark mode class to document
@@ -136,6 +146,66 @@ function App() {
   const handleCode = () => insertText('\n```\n', '\n```\n');
   const handleQuote = () => insertText('\n> ', '\n');
 
+  // AI functionality handlers
+  const handleAIImprove = async (selectedText?: string) => {
+    if (!aiSettings?.enabled || !aiSettings.apiKey || !currentDocument) return;
+    
+    const textToImprove = selectedText || currentDocument.content;
+    if (!textToImprove.trim()) return;
+
+    setIsAILoading(true);
+    try {
+      const service = AIServiceFactory.createService(aiSettings);
+      const response = await service.improveText(textToImprove);
+      
+      // For now, just log the response - in a real implementation,
+      // this would be handled by the AISuggestionsPanel
+      console.log('AI Improvement:', response.text);
+    } catch (error) {
+      console.error('AI improvement failed:', error);
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  const handleAIContinue = async (selectedText?: string) => {
+    if (!aiSettings?.enabled || !aiSettings.apiKey || !currentDocument) return;
+    
+    const textToContinue = selectedText || currentDocument.content;
+    if (!textToContinue.trim()) return;
+
+    setIsAILoading(true);
+    try {
+      const service = AIServiceFactory.createService(aiSettings);
+      const response = await service.continueText(textToContinue);
+      
+      console.log('AI Continuation:', response.text);
+    } catch (error) {
+      console.error('AI continuation failed:', error);
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  const handleAISummarize = async (selectedText?: string) => {
+    if (!aiSettings?.enabled || !aiSettings.apiKey || !currentDocument) return;
+    
+    const textToSummarize = selectedText || currentDocument.content;
+    if (!textToSummarize.trim()) return;
+
+    setIsAILoading(true);
+    try {
+      const service = AIServiceFactory.createService(aiSettings);
+      const response = await service.summarizeText(textToSummarize);
+      
+      console.log('AI Summary:', response.text);
+    } catch (error) {
+      console.error('AI summarization failed:', error);
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
   return (
     <div className={`h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
       {/* Header */}
@@ -166,6 +236,7 @@ function App() {
           >
             Save
           </button>
+          
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
@@ -177,7 +248,20 @@ function App() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
+        {/* AI Sidebar - Left Panel */}
+        <AISidebar
+          isCollapsed={isAISidebarCollapsed}
+          onToggle={() => setIsAISidebarCollapsed(!isAISidebarCollapsed)}
+          aiSettings={aiSettings}
+          onOpenSettings={() => setIsAISettingsOpen(true)}
+          onAIImprove={() => handleAIImprove()}
+          onAIContinue={() => handleAIContinue()}
+          onAISummarize={() => handleAISummarize()}
+          isAILoading={isAILoading}
+          isDarkMode={isDarkMode}
+        />
+
+        {/* Document Management Panel */}
         {isSidebarOpen && (
           <DocumentList
             documents={documents}
@@ -189,52 +273,65 @@ function App() {
           />
         )}
 
-        {/* Main content area */}
-        {currentDocument ? (
-          <div className="flex-1 flex flex-col">
-            <Toolbar
-              onBold={handleBold}
-              onItalic={handleItalic}
-              onHeading={handleHeading}
-              onLink={handleLink}
-              onList={handleList}
-              onCode={handleCode}
-              onQuote={handleQuote}
-            />
-            
-            <div className="flex-1 flex">
-              {/* Editor */}
-              <div className="flex-1 flex flex-col">
-                <Editor
-                  content={currentDocument.content}
-                  onChange={handleContentChange}
-                  isDarkMode={isDarkMode}
-                />
-              </div>
+        {/* Main Content Area - Editor and Preview */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {currentDocument ? (
+            <>
+              {/* Toolbar */}
+              <Toolbar
+                onBold={handleBold}
+                onItalic={handleItalic}
+                onHeading={handleHeading}
+                onLink={handleLink}
+                onList={handleList}
+                onCode={handleCode}
+                onQuote={handleQuote}
+              />
               
-              {/* Preview */}
-              <div className="flex-1 border-l border-gray-200 dark:border-gray-700">
-                <Preview
-                  content={currentDocument.content}
-                  isDarkMode={isDarkMode}
-                />
+              {/* Editor and Preview Container */}
+              <div className="flex-1 flex min-h-0">
+                {/* Editor - Left Half */}
+                <div className="flex-1 min-w-0 flex flex-col">
+                  <Editor
+                    content={currentDocument.content}
+                    onChange={handleContentChange}
+                    isDarkMode={isDarkMode}
+                  />
+                </div>
+                
+                {/* Preview - Right Half */}
+                <div className="flex-1 min-w-0 border-l border-gray-200 dark:border-gray-700">
+                  <Preview
+                    content={currentDocument.content}
+                    isDarkMode={isDarkMode}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <div className="text-6xl mb-4">📝</div>
+                <p className="text-xl mb-2">AI Writing Assistant</p>
+                <p className="text-gray-400 mb-6">Create or select a document to start writing</p>
+                <button
+                  onClick={handleNewDocument}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Create New Document
+                </button>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            <div className="text-center">
-              <p className="text-xl mb-4">No document selected</p>
-              <button
-                onClick={handleNewDocument}
-                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Create New Document
-              </button>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+      
+      {/* AI Settings Modal */}
+      <AISettingsModal
+        isOpen={isAISettingsOpen}
+        onClose={() => setIsAISettingsOpen(false)}
+        onSettingsChange={setAISettings}
+      />
     </div>
   );
 }
